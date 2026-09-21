@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>STV Smart Television</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#e50914">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-512.png">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+box-sizing:border-box;
+}
+
+html{
+scroll-behavior:smooth;
+}
+
+body{
+margin:0;
+font-family:Arial,Helvetica,sans-serif;
+background:
+linear-gradient(rgba(3,5,12,.90),rgba(3,5,12,.97)),
+url("https://images.unsplash.com/photo-1593784991095-a205069470b6?auto=format&fit=crop&w=2000&q=80");
+background-size:cover;
+background-attachment:fixed;
+background-position:center;
+color:#fff;
+}
+
+button{
+font-family:inherit;
+}
+
+.header{
+position:sticky;
+top:0;
+z-index:1000;
+height:70px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:0 20px;
+background:rgba(4,6,12,.94);
+backdrop-filter:blur(15px);
+border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.logo{
+font-size:30px;
+font-weight:900;
+letter-spacing:2px;
+color:#fff;
+}
+
+.logo span{
+color:#e50914;
+}
+
+.nav-actions{
+display:flex;
+gap:8px;
+align-items:center;
+}
+
+.nav-btn{
+border:1px solid rgba(255,255,255,.15);
+background:rgba(255,255,255,.07);
+color:#fff;
+padding:10px 13px;
+border-radius:10px;
+font-weight:700;
+cursor:pointer;
+}
+
+.nav-btn:hover{
+background:#e50914;
+}
+
+.install-btn{
+display:none;
+background:#e50914;
+border:0;
+}
+
+.hero{
+min-height:430px;
+display:flex;
+align-items:center;
+padding:55px 7%;
+position:relative;
+overflow:hidden;
+}
+
+.hero-content{
+max-width:700px;
+}
+
+.live-badge{
+display:inline-flex;
+align-items:center;
+gap:8px;
+background:#e50914;
+padding:8px 14px;
+border-radius:30px;
+font-size:13px;
+font-weight:900;
+margin-bottom:15px;
+}
+
+.live-dot{
+width:9px;
+height:9px;
+background:#fff;
+border-radius:50%;
+box-shadow:0 0 10px #fff;
+}
+
+.hero h1{
+font-size:clamp(42px,8vw,78px);
+margin:0 0 10px;
+font-weight:900;
+line-height:.95;
+}
+
+.hero h1 span{
+color:#e50914;
+}
+
+.hero p{
+font-size:18px;
+line-height:1.6;
+color:#cfd3dc;
+max-width:600px;
+}
+
+.hero-buttons{
+display:flex;
+flex-wrap:wrap;
+gap:12px;
+margin-top:25px;
+}
+
+.primary-btn,
+.secondary-btn{
+border:0;
+padding:14px 20px;
+border-radius:12px;
+font-size:15px;
+font-weight:900;
+cursor:pointer;
+}
+
+.primary-btn{
+background:#e50914;
+color:#fff;
+}
+
+.secondary-btn{
+background:#fff;
+color:#111;
+}
+
+.container{
+width:92%;
+max-width:1250px;
+margin:auto;
+}
+
+.section{
+padding:35px 0;
+}
+
+.section-title{
+font-size:25px;
+font-weight:900;
+margin:0 0 18px;
+}
+
+.search-box{
+display:flex;
+gap:10px;
+margin-bottom:22px;
+}
+
+.search-box input{
+width:100%;
+padding:15px;
+border-radius:12px;
+border:1px solid rgba(255,255,255,.12);
+background:rgba(255,255,255,.08);
+color:#fff;
+outline:none;
+font-size:15px;
+}
+
+.search-box input::placeholder{
+color:#aaa;
+}
+
+.categories{
+display:flex;
+gap:10px;
+overflow-x:auto;
+padding-bottom:8px;
+margin-bottom:25px;
+}
+
+.categories::-webkit-scrollbar{
+height:3px;
+}
+
+.category{
+white-space:nowrap;
+padding:10px 17px;
+border-radius:30px;
+border:1px solid rgba(255,255,255,.12);
+background:rgba(255,255,255,.06);
+color:#fff;
+cursor:pointer;
+font-weight:700;
+}
+
+.category.active,
+.category:hover{
+background:#e50914;
+border-color:#e50914;
+}
+
+.channels{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:15px;
+margin-bottom:35px;
+}
+
+.channel{
+padding:22px 15px;
+border-radius:18px;
+background:
+linear-gradient(145deg,rgba(229,9,20,.9),rgba(80,0,0,.8));
+border:1px solid rgba(255,255,255,.12);
+cursor:pointer;
+transition:.25s;
+}
+
+.channel:hover{
+transform:translateY(-5px);
+}
+
+.channel-icon{
+font-size:30px;
+margin-bottom:10px;
+}
+
+.channel strong{
+font-size:17px;
+display:block;
+}
+
+.channel small{
+color:#ddd;
+margin-top:5px;
+display:block;
+}
+
+.video-grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:20px;
+}
+
+.card{
+background:rgba(12,15,24,.88);
+border:1px solid rgba(255,255,255,.08);
+border-radius:16px;
+overflow:hidden;
+transition:.25s;
+}
+
+.card:hover{
+transform:translateY(-5px);
+box-shadow:0 15px 40px rgba(0,0,0,.35);
+}
+
+.thumbnail{
+width:100%;
+height:190px;
+object-fit:cover;
+background:#111;
+display:block;
+}
+
+.card-body{
+padding:15px;
+}
+
+.card-title{
+font-size:17px;
+font-weight:900;
+margin-bottom:8px;
+}
+
+.card-description{
+font-size:13px;
+color:#aaa;
+line-height:1.5;
+height:39px;
+overflow:hidden;
+}
+
+.watch-btn{
+width:100%;
+margin-top:13px;
+padding:11px;
+border:0;
+border-radius:9px;
+background:#e50914;
+color:#fff;
+font-weight:900;
+cursor:pointer;
+}
+
+.empty{
+padding:50px 20px;
+text-align:center;
+background:rgba(255,255,255,.05);
+border-radius:15px;
+color:#aaa;
+}
+
+.loading{
+padding:50px;
+text-align:center;
+color:#aaa;
+}
+
+.footer{
+margin-top:50px;
+padding:35px 20px;
+text-align:center;
+border-top:1px solid rgba(255,255,255,.08);
+color:#888;
+}
+
+.footer strong{
+color:#fff;
+}
+
+.modal{
+position:fixed;
+inset:0;
+z-index:5000;
+background:rgba(0,0,0,.88);
+display:none;
+align-items:center;
+justify-content:center;
+padding:20px;
+}
+
+.modal.show{
+display:flex;
+}
+
+.modal-box{
+width:100%;
+max-width:950px;
+max-height:92vh;
+overflow:auto;
+background:#090c14;
+border:1px solid rgba(255,255,255,.1);
+border-radius:18px;
+box-shadow:0 30px 80px rgba(0,0,0,.6);
+}
+
+.modal-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 18px;
+border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.close{
+background:#e50914;
+border:0;
+color:#fff;
+width:38px;
+height:38px;
+border-radius:50%;
+font-size:20px;
+cursor:pointer;
+}
+
+.player{
+background:#000;
+width:100%;
+aspect-ratio:16/9;
+}
+
+.player video,
+.player iframe{
+width:100%;
+height:100%;
+border:0;
+display:block;
+}
+
+.modal-info{
+padding:18px;
+}
+
+.modal-info h2{
+margin:0 0 8px;
+}
+
+.modal-info p{
+color:#aaa;
+line-height:1.6;
+}
+
+.status{
+position:fixed;
+left:50%;
+bottom:20px;
+transform:translateX(-50%);
+z-index:6000;
+padding:12px 18px;
+border-radius:10px;
+background:#111;
+border:1px solid rgba(255,255,255,.15);
+display:none;
+font-weight:700;
+}
+
+@media(max-width:900px){
+
+.channels{
+grid-template-columns:repeat(2,1fr);
+}
+
+.video-grid{
+grid-template-columns:repeat(2,1fr);
+}
+
+}
+
+@media(max-width:600px){
+
+.header{
+height:62px;
+padding:0 12px;
+}
+
+.logo{
+font-size:23px;
+}
+
+.nav-btn{
+padding:8px 9px;
+font-size:11px;
+}
+
+.hero{
+min-height:430px;
+padding:45px 5%;
+}
+
+.hero h1{
+font-size:50px;
+}
+
+.hero p{
+font-size:15px;
+}
+
+.container{
+width:94%;
+}
+
+.channels{
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+}
+
+.channel{
+padding:17px 12px;
+}
+
+.video-grid{
+grid-template-columns:1fr;
+gap:15px;
+}
+
+.thumbnail{
+height:210px;
+}
+
+.hero-buttons{
+flex-direction:column;
+}
+
+.primary-btn,
+.secondary-btn{
+width:100%;
+}
+
+}
+
+@media(max-width:380px){
+
+.install-btn{
+display:none !important;
+}
+
+.channels{
+grid-template-columns:1fr 1fr;
+}
+
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+
+<div class="logo">
+S<span>TV</span>
+</div>
+
+<div class="nav-actions">
+
+<button
+class="nav-btn install-btn"
+id="installBtn">
+📱 INSTALL APP
+</button>
+
+<button
+class="nav-btn"
+onclick="shareSTV()">
+📤 SHARE
+</button>
+
+</div>
+
+</header>
+
+<section class="hero">
+
+<div class="hero-content">
+
+<div class="live-badge">
+<span class="live-dot"></span>
+STV LIVE
+</div>
+
+<h1>
+SMART<br>
+<span>TELEVISION</span>
+</h1>
+
+<p>
+Karibu STV Smart Television.
+Tazama STV LIVE, Sports, Music,
+Burudani, News na video mbalimbali
+kutoka sehemu moja.
+</p>
+
+<div class="hero-buttons">
+
+<button
+class="primary-btn"
+onclick="openLive()">
+▶ TAZAMA LIVE
+</button>
+
+<button
+class="secondary-btn"
+onclick="scrollToVideos()">
+🎬 TAZAMA VIDEO
+</button>
+
+</div>
+
+</div>
+
+</section>
+
+<main class="container">
+
+<section class="section">
+
+<h2 class="section-title">
+📺 CHANNELS
+</h2>
+
+<div class="channels">
+
+<div
+class="channel"
+onclick="openLive()">
+
+<div class="channel-icon">📺</div>
+
+<strong>STV</strong>
+
+<small>Live Television</small>
+
+</div>
+
+<div
+class="channel"
+onclick="filterCategory('Sports')">
+
+<div class="channel-icon">⚽</div>
+
+<strong>STV SPORTS</strong>
+
+<small>Sports & Games</small>
+
+</div>
+
+<div
+class="channel"
+onclick="filterCategory('Music')">
+
+<div class="channel-icon">🎵</div>
+
+<strong>STV MUSIC</strong>
+
+<small>Music & Entertainment</small>
+
+</div>
+
+<div
+class="channel"
+onclick="filterCategory('Entertainment')">
+
+<div class="channel-icon">🎬</div>
+
+<strong>STV BURUDANI</strong>
+
+<small>Burudani & Stories</small>
+
+</div>
+
+</div>
+
+</section>
+
+<section
+class="section"
+id="videos">
+
+<h2 class="section-title">
+🎬 VIDEO ZILIZOPO
+</h2>
+
+<div class="search-box">
+
+<input
+id="searchInput"
+type="search"
+placeholder="🔎 Tafuta video..."
+autocomplete="off">
+
+</div>
+
+<div
+class="categories"
+id="categories">
+
+<button
+class="category active"
+data-category="ALL">
+ALL
+</button>
+
+<button
+class="category"
+data-category="News">
+NEWS
+</button>
+
+<button
+class="category"
+data-category="Sports">
+SPORTS
+</button>
+
+<button
+class="category"
+data-category="Entertainment">
+BURUDANI
+</button>
+
+<button
+class="category"
+data-category="Music">
+MUSIC
+</button>
+
+<button
+class="category"
+data-category="Stories">
+STORIES
+</button>
+
+<button
+class="category"
+data-category="Other">
+OTHER
+</button>
+
+</div>
+
+<div
+class="video-grid"
+id="videoList">
+
+<div class="loading">
+⏳ Inapakia video...
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+<footer class="footer">
+
+<strong>STV SMART TELEVISION</strong>
+
+<br><br>
+
+Live • Sports • Music • Burudani • News
+
+<br><br>
+
+© 2026 STV. All Rights Reserved.
+
+</footer>
+
+<div
+class="modal"
+id="playerModal"
+onclick="closeModalOutside(event)">
+
+<div class="modal-box">
+
+<div class="modal-header">
+
+<strong id="modalTitle">
+STV
+</strong>
+
+<button
+class="close"
+onclick="closeModal()">
+×
+</button>
+
+</div>
+
+<div
+class="player"
+id="playerContainer">
+</div>
+
+<div class="modal-info">
+
+<h2 id="modalVideoTitle">
+STV
+</h2>
+
+<p id="modalDescription">
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<div
+class="status"
+id="statusBox">
+</div>
+
+<script>
+
+const SUPABASE_URL =
+"https://ixlnqarzpnqryqkesanl.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_QoyftQYLc0XkLEBayP5BWw_FnSMqwmX";
+
+const BUCKET = "videos";
+
+const STV_LIVE_URL =
+"https://live-tv.xo.je/watch.php?s=stv";
+
+const client =
+supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+let allVideos = [];
+let selectedCategory = "ALL";
+
+const videoList =
+document.getElementById("videoList");
+
+const searchInput =
+document.getElementById("searchInput");
+
+const modal =
+document.getElementById("playerModal");
+
+const playerContainer =
+document.getElementById("playerContainer");
+
+const installBtn =
+document.getElementById("installBtn");
+
+let deferredPrompt = null;
+
+window.addEventListener(
+"beforeinstallprompt",
+event => {
+
+event.preventDefault();
+
+deferredPrompt = event;
+
+installBtn.style.display =
+"inline-flex";
+
+}
+);
+
+installBtn.addEventListener(
+"click",
+async () => {
+
+if(!deferredPrompt){
+
+alert(
+"Kufunga STV App kutapatikana baada ya kufungua STV kupitia HTTPS kwenye Chrome."
+);
+
+return;
+
+}
+
+deferredPrompt.prompt();
+
+const result =
+await deferredPrompt.userChoice;
+
+deferredPrompt = null;
+
+installBtn.style.display =
+"none";
+
+}
+);
+
+window.addEventListener(
+"appinstalled",
+() => {
+
+installBtn.style.display =
+"none";
+
+}
+);
+
+async function loadVideos(){
+
+videoList.innerHTML =
+`
+<div class="loading">
+⏳ Inapakia video...
+</div>
+`;
+
+try{
+
+const {data,error} =
+await client
+.from("video")
+.select("*")
+.eq("status","published")
+.order("created_at",{
+ascending:false
+});
+
+if(error){
+throw error;
+}
+
+allVideos = data || [];
+
+renderVideos();
+
+}catch(error){
+
+console.error(error);
+
+videoList.innerHTML =
+`
+<div class="empty">
+❌ Imeshindikana kupakia video.<br><br>
+${escapeHTML(error.message)}
+</div>
+`;
+
+}
+
+}
+
+function renderVideos(){
+
+const search =
+searchInput.value
+.trim()
+.toLowerCase();
+
+let videos =
+allVideos.filter(video => {
+
+const title =
+(video.title || "")
+.toLowerCase();
+
+const description =
+(video.description || "")
+.toLowerCase();
+
+const category =
+(video.category || "")
+.toLowerCase();
+
+const matchesSearch =
+!search ||
+title.includes(search) ||
+description.includes(search) ||
+category.includes(search);
+
+const matchesCategory =
+selectedCategory === "ALL" ||
+category === selectedCategory.toLowerCase();
+
+return matchesSearch &&
+matchesCategory;
+
+});
+
+if(videos.length === 0){
+
+videoList.innerHTML =
+`
+<div class="empty">
+📺 Hakuna video iliyopatikana.
+</div>
+`;
+
+return;
+
+}
+
+videoList.innerHTML =
+videos.map(video => {
+
+const videoUrl =
+getPublicUrl(video.video_url);
+
+const thumbnailUrl =
+getPublicUrl(video.thumbnail_url);
+
+return `
+<article class="card">
+
+${
+thumbnailUrl
+?
+`<img
+class="thumbnail"
+src="${escapeAttr(thumbnailUrl)}"
+alt="${escapeAttr(video.title || "STV Video")}"
+loading="lazy">`
+:
+`<div
+class="thumbnail"
+style="display:flex;align-items:center;justify-content:center;font-size:45px;">
+📺
+</div>`
+}
+
+<div class="card-body">
+
+<div class="card-title">
+${escapeHTML(video.title || "STV Video")}
+</div>
+
+<div class="card-description">
+${escapeHTML(video.description || "Tazama video kupitia STV.")}
+</div>
+
+<button
+class="watch-btn"
+onclick='openVideo(${JSON.stringify(videoUrl)},${JSON.stringify(video.title || "STV Video")},${JSON.stringify(video.description || "")})'>
+▶ TAZAMA VIDEO
+</button>
+
+</div>
+
+</article>
+`;
+
+}).join("");
+
+}
+
+function getPublicUrl(path){
+
+if(!path){
+return "";
+}
+
+if(
+path.startsWith("http://") ||
+path.startsWith("https://")
+){
+return path;
+}
+
+const result =
+client
+.storage
+.from(BUCKET)
+.getPublicUrl(path);
+
+return result.data.publicUrl;
+
+}
+
+function openVideo(
+url,
+title,
+description
+){
+
+if(!url){
+
+alert(
+"Video URL haipo."
+);
+
+return;
+
+}
+
+document.getElementById(
+"modalTitle"
+).textContent =
+title;
+
+document.getElementById(
+"modalVideoTitle"
+).textContent =
+title;
+
+document.getElementById(
+"modalDescription"
+).textContent =
+description;
+
+playerContainer.innerHTML =
+`
+<video
+controls
+autoplay
+playsinline
+src="${escapeAttr(url)}">
+</video>
+`;
+
+modal.classList.add("show");
+
+document.body.style.overflow =
+"hidden";
+
+}
+
+function openLive(){
+
+document.getElementById(
+"modalTitle"
+).textContent =
+"STV LIVE";
+
+document.getElementById(
+"modalVideoTitle"
+).textContent =
+"STV LIVE";
+
+document.getElementById(
+"modalDescription"
+).textContent =
+"Unaangalia STV LIVE.";
+
+playerContainer.innerHTML =
+`
+<iframe
+src="${STV_LIVE_URL}"
+allow="autoplay; fullscreen"
+allowfullscreen>
+</iframe>
+`;
+
+modal.classList.add("show");
+
+document.body.style.overflow =
+"hidden";
+
+}
+
+function closeModal(){
+
+modal.classList.remove("show");
+
+playerContainer.innerHTML = "";
+
+document.body.style.overflow =
+"";
+
+}
+
+function closeModalOutside(event){
+
+if(event.target === modal){
+
+closeModal();
+
+}
+
+}
+
+function scrollToVideos(){
+
+document.getElementById(
+"videos"
+).scrollIntoView({
+behavior:"smooth"
+});
+
+}
+
+function filterCategory(category){
+
+selectedCategory =
+category;
+
+document
+.querySelectorAll(".category")
+.forEach(button => {
+
+button.classList.toggle(
+"active",
+button.dataset.category === category
+);
+
+});
+
+renderVideos();
+
+scrollToVideos();
+
+}
+
+document
+.querySelectorAll(".category")
+.forEach(button => {
+
+button.addEventListener(
+"click",
+() => {
+
+filterCategory(
+button.dataset.category
+);
+
+}
+);
+
+});
+
+searchInput.addEventListener(
+"input",
+renderVideos
+);
+
+async function shareSTV(){
+
+const shareData = {
+
+title:
+"STV Smart Television",
+
+text:
+"Tazama STV LIVE, Sports, Music, Burudani na News.",
+
+url:
+window.location.href
+
+};
+
+try{
+
+if(navigator.share){
+
+await navigator.share(
+shareData
+);
+
+}else if(
+navigator.clipboard
+){
+
+await navigator.clipboard.writeText(
+window.location.href
+);
+
+showStatus(
+"✅ Link ya STV imenakiliwa.",
+"ok"
+);
+
+}else{
+
+prompt(
+"Copy link ya STV:",
+window.location.href
+);
+
+}
+
+}catch(error){
+
+console.log(error);
+
+}
+
+}
+
+function showStatus(
+message,
+type
+){
+
+const box =
+document.getElementById(
+"statusBox"
+);
+
+box.textContent =
+message;
+
+box.style.display =
+"block";
+
+setTimeout(() => {
+
+box.style.display =
+"none";
+
+},3500);
+
+}
+
+function escapeHTML(value){
+
+return String(value)
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
+
+function escapeAttr(value){
+
+return escapeHTML(value);
+
+}
+
+if(
+"serviceWorker" in navigator
+){
+
+window.addEventListener(
+"load",
+() => {
+
+navigator.serviceWorker
+.register("./sw.js")
+.then(() => {
+
+console.log(
+"STV App ready"
+);
+
+})
+.catch(error => {
+
+console.log(
+"STV App error:",
+error
+);
+
+});
+
+});
+
+}
+
+loadVideos();
+
+</script>
+
+</body>
+</html>
